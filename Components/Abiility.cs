@@ -9,11 +9,10 @@ public struct Ability {
   public int Cooldown;
   public float CriticalDamageMultiplier;
   public bool CanMiss;
-  public PrefabID[] OnSuccessEffects;
-  public PrefabID[] OnCriticalSuccessEffects;
-  public PrefabID[] OnFailureEffects;
-  public PrefabID[] OnCriticalFailEffects;
+  public Effect[] OnSuccessEffects;
+  public Effect[] OnCriticalSuccessEffects;
+  public Effect[] OnFailureEffects;
+  public Effect[] OnCriticalFailEffects;
   public Requirements Requirements;
-  public Luck Luck;
-  public int Difficulty;
+  public LuckRequirement LuckRequirement;
 }
