@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Echoes of the Veil</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Crimson Text', serif;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(139, 105, 20, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+        linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1f1f1f 100%);
+      color: #e8dcc0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .game-container {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      grid-template-rows: 1fr auto;
+      height: 100vh;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .panel {
+      background:
+        linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(139, 105, 20, 0.08) 50%, rgba(0, 0, 0, 0.9) 100%),
+        radial-gradient(circle at top left, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+        rgba(0, 0, 0, 0.85);
+      border: 2px solid #8b6914;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(212, 175, 55, 0.1),
+        0 0 20px rgba(139, 105, 20, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    }
+
+    .character-panel {
+      padding: 20px;
+    }
+
+    .character-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .character-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #8b6914, #d4af37);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a1a1a;
+      border: 3px solid #d4af37;
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+    }
+
+    .character-info h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      color: #d4af37;
+      margin-bottom: 4px;
+    }
+
+    .character-level {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: #d4af37;
+      margin-bottom: 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    }
+
+    .attribute-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .attribute-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 6px;
+      border-left: 3px solid #d4af37;
+      transition: all 0.3s ease;
+    }
+
+    .attribute-item:hover {
+      background: rgba(212, 175, 55, 0.15);
+      transform: translateX(4px);
+    }
+
+    .attribute-name {
+      font-weight: 600;
+    }
+
+    .attribute-value {
+      color: #d4af37;
+      font-weight: bold;
+    }
+
+    .equipment-status {
+      background: rgba(139, 105, 20, 0.2);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .location-panel {
+      padding: 24px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(139, 105, 20, 0.1));
+    }
+
+    .location-title {
+      font-family: 'Cinzel', serif;
+      font-size: 32px;
+      color: #d4af37;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .location-subtitle {
+      font-size: 16px;
+      opacity: 0.7;
+      font-style: italic;
+    }
+
+    .story-panel {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .story-progress {
+      background: rgba(212, 175, 55, 0.1);
+      padding: 12px 20px;
+      border-radius: 8px;
+      border-left: 4px solid #d4af37;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .story-content {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 8px;
+      line-height: 1.8;
+      font-size: 16px;
+      overflow-y: auto;
+    }
+
+    .story-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .story-content::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 3px;
+    }
+
+    .story-content::-webkit-scrollbar-thumb {
+      background: #d4af37;
+      border-radius: 3px;
+    }
+
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .equipment-panel,
+    .inventory-panel {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .equipment-slot {
+      aspect-ratio: 1;
+      background: rgba(212, 175, 55, 0.1);
+      border: 2px dashed rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .equipment-slot:hover {
+      border-color: #d4af37;
+      background: rgba(212, 175, 55, 0.2);
+    }
+
+    .equipment-slot.filled {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 105, 20, 0.2));
+      border: 2px solid #d4af37;
+    }
+
+    .character-model {
+      grid-column: 2;
+      grid-row: 1 / 4;
+      background: rgba(212, 175, 55, 0.05);
+      border: 2px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      opacity: 0.6;
+    }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .inventory-slot {
+      aspect-ratio: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .inventory-slot:hover {
+      border-color: #d4af37;
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .inventory-slot.has-item {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(139, 105, 20, 0.15));
+      border-color: #d4af37;
+    }
+
+    .item-icon {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+
+    .item-count {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      background: #d4af37;
+      color: #1a1a1a;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .glow-effect {
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-container">
+    <!-- Painel do Personagem -->
+    <div class="panel character-panel">
+      <div class="character-header">
+        <div class="character-avatar">MV</div>
+        <div class="character-info">
+          <h2>Mark Vaaz</h2>
+          <div class="character-level">Aventureiro</div>
+        </div>
+      </div>
+
+      <div class="section-title">Atributos</div>
+      <div class="attribute-grid">
+        <div class="attribute-item">
+          <span class="attribute-name">Força</span>
+          <span class="attribute-value">10</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Destreza</span>
+          <span class="attribute-value">3</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Percepção</span>
+          <span class="attribute-value">0</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Inteligência</span>
+          <span class="attribute-value">1</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Sabedoria</span>
+          <span class="attribute-value">5</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Carisma</span>
+          <span class="attribute-value">4</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Constituição</span>
+          <span class="attribute-value">4</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Sorte</span>
+          <span class="attribute-value">1</span>
+        </div>
+      </div>
+
+      <div class="section-title">Status do Equipamento</div>
+      <div class="equipment-status">
+        <div class="attribute-item">
+          <span class="attribute-name">Dano</span>
+          <span class="attribute-value">10</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Proteção</span>
+          <span class="attribute-value">10</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attribute-name">Visibilidade</span>
+          <span class="attribute-value">20</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content">
+      <div class="panel location-panel">
+        <h1 class="location-title">Cabana Abandonada</h1>
+        <div class="location-subtitle">desconhecido</div>
+      </div>
+
+      <div class="panel story-panel">
+        <div class="story-progress pulse">Você saiu da caverna</div>
+        <div class="story-progress">Você entrou numa floresta misteriosa</div>
+
+        <div class="story-content">
+          Você se encontra diante de uma cena intrigante na vasta floresta. Uma velha casa de madeira abandonada emerge
+          da densa vegetação. As tábuas que a compõem estão desgastadas pelo tempo, e a natureza reivindicou seu espaço,
+          com vinhas subindo pelas paredes e teias de aranha penduradas nas janelas quebradas. Ao seu redor, árvores
+          gigantescas se erguem, projetando sombras misteriosas. O vento sussurra segredos antigos enquanto você decide
+          se aventurar mais fundo neste cenário enigmático.
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel Direito -->
+    <div class="right-panel">
+      <div class="panel equipment-panel">
+        <div class="section-title">Equipamentos</div>
+        <div class="equipment-grid">
+          <div class="equipment-slot"></div>
+          <div class="equipment-slot"></div>
+          <div class="equipment-slot"></div>
+
+          <div class="character-model">👤</div>
+
+          <div class="equipment-slot"></div>
+          <div class="equipment-slot"></div>
+          <div class="equipment-slot"></div>
+          <div class="equipment-slot"></div>
+          <div class="equipment-slot"></div>
+        </div>
+      </div>
+
+      <div class="panel inventory-panel">
+        <div class="section-title">Inventário</div>
+        <div class="inventory-grid">
+          <div class="inventory-slot has-item glow-effect">🗡️</div>
+          <div class="inventory-slot has-item">🧪<div class="item-count">3</div>
+          </div>
+          <div class="inventory-slot has-item">💰<div class="item-count">100</div>
+          </div>
+          <div class="inventory-slot has-item">📜</div>
+          <div class="inventory-slot"></div>
+          <div class="inventory-slot has-item">🔥</div>
+          <div class="inventory-slot has-item">🛡️</div>
+          <div class="inventory-slot"></div>
+          <div class="inventory-slot"></div>
+          <div class="inventory-slot"></div>
+          <div class="inventory-slot"></div>
+          <div class="inventory-slot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
